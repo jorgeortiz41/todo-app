@@ -1,15 +1,21 @@
 import TodoList from "../components/TodoList";
 import AddTodo from "../components/AddTodo";
-import Container from '@mui/material/Container';
+import { Container, Stack } from "@mui/material";
 
 export default function Home() {
   return (
     <div>
-      <Container maxWidth="sm">
+      <Container maxWidth="lg">
+      <Stack
+      justifyContent="center"
+      alignItems="center" 
+      spacing={2}
+      >
         <h1>Simple To-Do App</h1>
         <AddTodo />
         <TodoList />
-      </ Container>
+      </ Stack>
+      </Container>
     </div>
   )
 }
