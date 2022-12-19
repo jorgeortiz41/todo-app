@@ -59,7 +59,7 @@ export default function TodoList() {
   //handle task deletion by id!!!!MISSING!!!!
   const handleDelete = (id) => {
     const deleteTask = async () => {
-        const response = await fetch('http://localhost:5000/api/erasetask/' + id.toString(), {
+        const response = await fetch('http://localhost:5000/api/erasetask/' + id, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -71,14 +71,10 @@ export default function TodoList() {
         }
         return body;
     };
-    //if checked, delete task from database
-    if (checked.includes(id)) {
-      deleteTask()
-          .then(res => console.log(res))
-          .catch(err => console.log(err));
-      window.location.reload(false);
-    }
-}
+    deleteTask()
+        .then(res => console.log(res))
+        .catch(err => console.log(err));
+  }
 
   //handle checkbox behavior
   const handleToggle = (value) => () => {
@@ -118,6 +114,7 @@ export default function TodoList() {
         console.log("task has been updated");
   };
 
+
   //displayed when loading or no data
   if (isLoading) return <p>Loading...</p>
   if (!data) return <p>No task data</p>
@@ -127,26 +124,50 @@ export default function TodoList() {
   return (
     <>
     <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
+    {/* Display tasks checked if isDone is true and unchecked if isDone is false */}
     {data.map((task) => {
-      const labelId = `checkbox-list-label-${task.name}`;
+      const labelId = `checkbox-list-label-${task._id}`;
 
-      return (
-        <>
-        <ListItem
-          key={task.id}
-          secondaryAction={
-            <ButtonGroup variant="outlined" aria-label="text button group" style={{ width: 100, justifyContent: "space-evenly" }}>
-              <IconButton edge='end' aria-label='edit'>
+      if (task.isDone) {
+        return (
+          <ListItem key={task._id} secondaryAction={
+            <ButtonGroup>
+              <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(task._id)}>
                 <EditIcon />
               </IconButton>
-              <IconButton edge='end' aria-label='delete' onClick={handleDelete} >
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
                 <DeleteIcon />
               </IconButton>
             </ButtonGroup>
-          }
-          disablePadding
+          } disablePadding>
+            <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={checked.indexOf(task) == -1}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ 'aria-labelledby': labelId }}
+                />
+              </ListItemIcon>
+              <ListItemText id={labelId} primary={task.name} />
+            </ListItemButton>
+          </ListItem>
+        )
+      }
+      else {
 
-        >
+      return (
+        <ListItem key={task._id} secondaryAction={
+          <ButtonGroup>
+            <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(task._id)}>
+              <EditIcon />
+            </IconButton>
+            <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
+              <DeleteIcon />
+            </IconButton>
+          </ButtonGroup>
+        } disablePadding>
           <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
             <ListItemIcon>
               <Checkbox
@@ -160,9 +181,8 @@ export default function TodoList() {
             <ListItemText id={labelId} primary={task.name} />
           </ListItemButton>
         </ListItem>
-        <Divider />
-        </>
-      );
+      )
+      }
     })}
   </List>
   <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
