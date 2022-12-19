@@ -1,14 +1,21 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from '../styles/Home.module.css'
-
-const inter = Inter({ subsets: ['latin'] })
+import TodoList from "../components/TodoList";
+import AddTodo from "../components/AddTodo";
+import { Container, Stack } from "@mui/material";
 
 export default function Home() {
   return (
     <div>
-      <div>Hello World</div>
+      <Container maxWidth="lg">
+      <Stack
+      justifyContent="center"
+      alignItems="center" 
+      spacing={2}
+      >
+        <h1>Simple To-Do App</h1>
+        <AddTodo />
+        <TodoList />
+      </ Stack>
+      </Container>
     </div>
   )
 }
