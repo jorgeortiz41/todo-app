@@ -32,6 +32,17 @@ export default function TodoList() {
       })
   }, [])
 
+  //function to get tasks from database
+  const getTasks = async () => {
+    const response = await fetch('http://localhost:5000/api/tasks');
+    const body = await response.json();
+    if (response.status !== 200) {
+      throw Error(body.message)
+    }
+
+    return body;
+  };
+
   //handle task editing by id!!!!MISSING!!!!
   // const handleEdit = (id) => {
   //   const editTask = async () => {
@@ -56,7 +67,8 @@ export default function TodoList() {
   //   window.location.reload(false);
   // }
 
-  //handle task deletion by id!!!!MISSING!!!!
+
+  //handle task deletion by id
   const handleDelete = (id) => {
     const deleteTask = async () => {
         const response = await fetch('http://localhost:5000/api/erasetask/' + id, {
@@ -76,40 +88,51 @@ export default function TodoList() {
         .catch(err => console.log(err));
   }
 
+  //handle task isDone property update by id
+  const updateStatusTask = async (value) => {
+    const isDone = !value.isDone;
+    const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            isDone: isDone,
+        }),
+    });
+    const body = await response.json();
+    if (response.status !== 200) {
+        throw Error(body.message)
+    }
+    return body;
+  }
+
   //handle checkbox behavior
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
-    let isDone = !currentIndex;
+    let newData = [...data];
+    let newTask = newData.find(task => task._id === value._id);
+
 
     if (currentIndex === -1) {
       newChecked.push(value);
-      isDone = true;
     } else {
       newChecked.splice(currentIndex, 1);
-      isDone = false;
     }
-
+    
     setChecked(newChecked);
+    
     //update isDone property of task in database to match checkbox state
-    const updateTask = async () => {
-      const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
-          method: 'PUT',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              isDone: isDone,
-          }),
-      });
-      const body = await response.json();
-      if (response.status !== 200) {
-          throw Error(body.message)
-      }
-      return body;
-    }
-    updateTask()
-        .then(res => console.log(res))
+    updateStatusTask(value)
+        .then(res => {
+          console.log(res)
+          newTask.isDone = res.isDone;
+          console.log(newTask);
+          newData[newData.findIndex(task => task._id == newTask._id )] = newTask;
+          setData(newData);
+          console.log(data);
+        })
         .catch(err => console.log(err));
         console.log("task has been updated");
   };
