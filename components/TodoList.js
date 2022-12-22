@@ -148,6 +148,42 @@ export default function TodoList() {
     {data.map((task) => {
       const labelId = `checkbox-list-label-${task._id}`;
 
+      if (!task.isDone) {
+        return (
+          <ListItem key={task._id} secondaryAction={
+            <ButtonGroup>
+              <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(task._id)}>
+                <EditIcon />
+              </IconButton>
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
+                <DeleteIcon />
+              </IconButton>
+            </ButtonGroup>
+          } disablePadding>
+            <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={checked.indexOf(task) !== -1}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ 'aria-labelledby': labelId }}
+                />
+              </ListItemIcon>
+              <ListItemText id={labelId} primary={task.name} />
+            </ListItemButton>
+          </ListItem>
+        )
+      }
+    })}
+  </List>
+  <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
+    <ListSubheader>Completed</ListSubheader>
+    <Divider variant="middle" />
+    {/* Display checked list items */}
+    {data.map((task) => {
+      const labelId = `checkbox-list-label-${task._id}`;
+
       if (task.isDone) {
         return (
           <ListItem key={task._id} secondaryAction={
@@ -175,39 +211,7 @@ export default function TodoList() {
           </ListItem>
         )
       }
-      else {
-
-      return (
-        <ListItem key={task._id} secondaryAction={
-          <ButtonGroup>
-            <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(task._id)}>
-              <EditIcon />
-            </IconButton>
-            <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
-              <DeleteIcon />
-            </IconButton>
-          </ButtonGroup>
-        } disablePadding>
-          <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={checked.indexOf(task) !== -1}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{ 'aria-labelledby': labelId }}
-              />
-            </ListItemIcon>
-            <ListItemText id={labelId} primary={task.name} />
-          </ListItemButton>
-        </ListItem>
-      )
-      }
     })}
-  </List>
-  <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
-    <ListSubheader>Completed</ListSubheader>
-    {/* Display checked list items */}
   </List>
   </>
   )
