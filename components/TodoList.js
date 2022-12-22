@@ -12,6 +12,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { ButtonGroup } from '@mui/material';
 import { Divider } from '@mui/material';
 import ListSubheader from '@mui/material/ListSubheader';
+import FormDialog from './FormDialog';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 
 export default function TodoList() {
@@ -19,6 +27,15 @@ export default function TodoList() {
   const [data, setData] = useState(null)
   const [isLoading, setLoading] = useState(false)
   const [checked, setChecked] = React.useState([0]);
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   //fetch tasks from api
   useEffect(() => {
@@ -150,9 +167,10 @@ export default function TodoList() {
 
       if (!task.isDone) {
         return (
+          <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
-              <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(task._id)}>
+              <IconButton edge="end" aria-label="edit" onClick={handleClickOpen}>
                 <EditIcon />
               </IconButton>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
@@ -173,6 +191,29 @@ export default function TodoList() {
               <ListItemText id={labelId} primary={task.name} />
             </ListItemButton>
           </ListItem>
+          <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Subscribe</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              To subscribe to this website, please enter your email address here. We
+              will send updates occasionally.
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Email Address"
+              type="email"
+              fullWidth
+              variant="standard"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleClose}>Subscribe</Button>
+          </DialogActions>
+        </Dialog>
+        </>
         )
       }
     })}
@@ -186,9 +227,10 @@ export default function TodoList() {
 
       if (task.isDone) {
         return (
+          <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
-              <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(task._id)}>
+              <IconButton edge="end" aria-label="edit" onClick={handleClickOpen}>
                 <EditIcon />
               </IconButton>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
@@ -209,6 +251,29 @@ export default function TodoList() {
               <ListItemText id={labelId} primary={task.name} />
             </ListItemButton>
           </ListItem>
+          <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Subscribe</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              To subscribe to this website, please enter your email address here. We
+              will send updates occasionally.
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Email Address"
+              type="email"
+              fullWidth
+              variant="standard"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleClose}>Subscribe</Button>
+          </DialogActions>
+        </Dialog>
+          </>
         )
       }
     })}
