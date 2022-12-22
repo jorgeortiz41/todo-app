@@ -86,6 +86,8 @@ export default function TodoList() {
     deleteTask()
         .then(res => console.log(res))
         .catch(err => console.log(err));
+
+    window.location.reload(false);
   }
 
   //handle task isDone property update by id
@@ -111,8 +113,8 @@ export default function TodoList() {
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
-    let newData = [...data];
-    let newTask = newData.find(task => task._id === value._id);
+    let newData = [...data];  //copy of data array
+    
 
 
     if (currentIndex === -1) {
@@ -125,16 +127,11 @@ export default function TodoList() {
     
     //update isDone property of task in database to match checkbox state
     updateStatusTask(value)
-        .then(res => {
-          console.log(res)
-          newTask.isDone = res.isDone;
-          console.log(newTask);
-          newData[newData.findIndex(task => task._id == newTask._id )] = newTask;
-          setData(newData);
-          console.log(data);
-        })
+        .then(res => console.log(res))
         .catch(err => console.log(err));
         console.log("task has been updated");
+        
+    window.location.reload(false);
   };
 
 
