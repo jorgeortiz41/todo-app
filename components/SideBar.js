@@ -1,11 +1,9 @@
 import React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
-import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
@@ -16,14 +14,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import WorkIcon from '@mui/icons-material/Work';
 import HomeIcon from '@mui/icons-material/Home';
 import SchoolIcon from '@mui/icons-material/School';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import ListIcon from '@mui/icons-material/List';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 const drawerWidth = 240;
 const category = [
@@ -36,7 +33,9 @@ const category = [
     {title: 'School',
     icon: <SchoolIcon/>},
     {title: 'Important',
-    icon: <PriorityHighIcon/>}
+    icon: <PriorityHighIcon/>},
+    {title: 'Tasks',
+    icon: <AssignmentIcon/>},
 ];
 const folders = [
     {title: 'CustomList',
