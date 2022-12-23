@@ -12,7 +12,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { ButtonGroup } from '@mui/material';
 import { Divider } from '@mui/material';
 import ListSubheader from '@mui/material/ListSubheader';
-import FormDialog from './FormDialog';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -20,22 +19,36 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Box from '@mui/material/Box';
 
 
-export default function TodoList() {
+export default function TodoList() { 
+  
+  const status = [
+    {
+      value: 'to-do',
+      label: 'To Do',
+    },
+    {
+      value: 'done',
+      label: 'Done',
+    },
+    {
+      value: 'in-progress',
+      label: 'In Progress',
+    }
+  ]
 
   const [data, setData] = useState(null)
   const [isLoading, setLoading] = useState(false)
   const [checked, setChecked] = React.useState([0]);
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState([0]);
+  const [task, setTask] = useState(null)
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   //fetch tasks from api
   useEffect(() => {
@@ -151,6 +164,20 @@ export default function TodoList() {
     window.location.reload(false);
   };
 
+  //handle task dialong toggle
+  const handleDialogToggle = (value) => () => {
+    const currentIndex = open.indexOf(value);
+    const newOpen = [...open];
+
+    if (currentIndex === -1) {
+      newOpen.push(value);
+    } else {
+      newOpen.splice(currentIndex, 1);
+    }
+
+    setOpen(newOpen);
+  };
+
 
   //displayed when loading or no data
   if (isLoading) return <p>Loading...</p>
@@ -161,6 +188,8 @@ export default function TodoList() {
   return (
     <>
     <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
+    <ListSubheader>To-do</ListSubheader>
+    <Divider variant="middle" />
     {/* Display tasks checked if isDone is true and unchecked if isDone is false */}
     {data.map((task) => {
       const labelId = `checkbox-list-label-${task._id}`;
@@ -170,7 +199,7 @@ export default function TodoList() {
           <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
-              <IconButton edge="end" aria-label="edit" onClick={handleClickOpen}>
+              <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
                 <EditIcon />
               </IconButton>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
@@ -191,26 +220,42 @@ export default function TodoList() {
               <ListItemText id={labelId} primary={task.name} />
             </ListItemButton>
           </ListItem>
-          <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Subscribe</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              To subscribe to this website, please enter your email address here. We
-              will send updates occasionally.
-            </DialogContentText>
-            <TextField
+          <Dialog
+          fullWidth={true}
+          open={open.indexOf(task)!== -1} 
+          onClose={handleDialogToggle(task)} 
+          key={task._id}
+          >
+          <DialogTitle>
+          <TextField
               autoFocus
               margin="dense"
               id="name"
-              label="Email Address"
-              type="email"
+              label={task.name}
+              type="text"
               fullWidth
-              variant="standard"
+              variant="outlined"
             />
+          </DialogTitle>
+          <DialogContent sx={{pt:1}}>
+            <TextField
+              margin="dense"
+              id="outlined-select-currency"
+              select
+              label="Status"
+              defaultValue={task.inProg ? 'in-progress': task.isDone ? 'done': 'to-do' } 
+              helperText="Change status"
+            >
+              {status.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleClose}>Subscribe</Button>
+            <Button onClick={handleDialogToggle(task)}>Cancel</Button>
+            <Button onClick={handleDialogToggle(task)}>Confirm</Button>
           </DialogActions>
         </Dialog>
         </>
@@ -219,10 +264,14 @@ export default function TodoList() {
     })}
   </List>
   <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
-    <ListSubheader>Completed</ListSubheader>
+    <ListSubheader>In progress</ListSubheader>
+    <Divider variant="middle" />
+  </List>
+  <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
+    <ListSubheader>Done</ListSubheader>
     <Divider variant="middle" />
     {/* Display checked list items */}
-    {data.map((task) => {
+    {data.map((task, i) => {
       const labelId = `checkbox-list-label-${task._id}`;
 
       if (task.isDone) {
@@ -230,7 +279,7 @@ export default function TodoList() {
           <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
-              <IconButton edge="end" aria-label="edit" onClick={handleClickOpen}>
+              <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
                 <EditIcon />
               </IconButton>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
@@ -251,26 +300,42 @@ export default function TodoList() {
               <ListItemText id={labelId} primary={task.name} />
             </ListItemButton>
           </ListItem>
-          <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Subscribe</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              To subscribe to this website, please enter your email address here. We
-              will send updates occasionally.
-            </DialogContentText>
-            <TextField
+          <Dialog
+          fullWidth={true}
+          open={open.indexOf(task)!== -1} 
+          onClose={handleDialogToggle(task)} 
+          key={task._id}
+          >
+          <DialogTitle>
+          <TextField
               autoFocus
               margin="dense"
               id="name"
-              label="Email Address"
-              type="email"
+              label={task.name}
+              type="text"
               fullWidth
-              variant="standard"
+              variant="outlined"
             />
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="dense"
+              id="outlined-select-currency"
+              select
+              label="Status"
+              defaultValue={task.inProg ? 'in-progress': task.isDone ? 'done': 'to-do' } 
+              helperText="Change status"
+            >
+              {status.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleClose}>Subscribe</Button>
+            <Button onClick={handleDialogToggle(task)}>Cancel</Button>
+            <Button onClick={handleDialogToggle(task)}>Confirm</Button>
           </DialogActions>
         </Dialog>
           </>
