@@ -17,13 +17,10 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import Box from '@mui/material/Box';
+import Rating from '@mui/material/Rating';
+import Typography from '@mui/material/Typography';
 
 
 export default function TodoList() { 
@@ -40,6 +37,25 @@ export default function TodoList() {
     {
       value: 'in-progress',
       label: 'In Progress',
+    }
+  ]
+
+  const categories = [
+    {
+      value: 'Work',
+      label: 'Work',
+    },
+    {
+      value: 'Home',
+      label: 'Home',
+    },
+    {
+      value: 'School',
+      label: 'School',
+    },
+    {
+      value: 'Tasks',
+      label: 'None',
     }
   ]
 
@@ -139,6 +155,24 @@ export default function TodoList() {
     return body;
   }
 
+  const updateImportanceTask = async (value) => {
+    const isImportant = !value.isImportant;
+    const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            isImportant: isImportant,
+        }),
+    });
+    const body = await response.json();
+    if (response.status !== 200) {
+        throw Error(body.message)
+    }
+    return body;
+  }
+
   //handle checkbox behavior
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
@@ -178,6 +212,17 @@ export default function TodoList() {
     setOpen(newOpen);
   };
 
+  const handleImportantToggle = (value) => () => {
+    //call updateImportanceTask function
+    updateImportanceTask(value)
+        .then(res => console.log(res))
+        .catch(err => console.log(err));
+        console.log("task importance has been updated");
+
+    window.location.reload(false);
+  }
+
+
 
   //displayed when loading or no data
   if (isLoading) return <p>Loading...</p>
@@ -199,6 +244,7 @@ export default function TodoList() {
           <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
+              <Rating name="customized-1" defaultValue={task.isImportant ? 1: 0} max={1} sx={{p:1, pr:0}} size='large' onClick={handleImportantToggle(task)}/>
               <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
                 <EditIcon />
               </IconButton>
@@ -237,10 +283,10 @@ export default function TodoList() {
               variant="outlined"
             />
           </DialogTitle>
-          <DialogContent sx={{pt:1}}>
+          <DialogContent>
             <TextField
               margin="dense"
-              id="outlined-select-currency"
+              id="outlined-select-status"
               select
               label="Status"
               defaultValue={task.inProg ? 'in-progress': task.isDone ? 'done': 'to-do' } 
@@ -252,6 +298,21 @@ export default function TodoList() {
                 </MenuItem>
               ))}
             </TextField>
+            <TextField
+              margin="dense"
+              id="outlined-select-category"
+              select
+              label="Category"
+              defaultValue={task.cat} 
+              helperText="Change category"
+              sx={{ml: 2}}
+            >
+              {categories.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>       
           </DialogContent>
           <DialogActions>
             <Button onClick={handleDialogToggle(task)}>Cancel</Button>
