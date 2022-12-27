@@ -136,6 +136,7 @@ export default function TodoList() {
     const newName = name === '' ? value.name : name;
     const newNotes = notes === '' ? value.notes : notes;
     const newCategory = category === '' ? value.cat : category;
+    const newStat = stat === '' ? value.status : stat;
     const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
         method: 'PUT',
         headers: {
@@ -145,6 +146,7 @@ export default function TodoList() {
             name: newName,
             notes: newNotes,
             cat: newCategory,
+            status: newStat,
         }),
     });
     const body = await response.json();
@@ -156,15 +158,24 @@ export default function TodoList() {
   };
 
   //handle task isDone property update by id
-  const updateStatusTask = async (value) => {
-    const isDone = !value.isDone;
+  const checkboxUpdateStatusTask = async (value) => {
+    let isDone = '';
+
+    if (value.status === 'to-do') {
+      isDone = 'done';
+    } else if (value.status === 'in-progress') {
+      isDone = 'done';
+    } else {
+      isDone = 'to-do';
+    }
+
     const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            isDone: isDone,
+            status: isDone,
         }),
     });
     const body = await response.json();
@@ -197,9 +208,7 @@ export default function TodoList() {
   //handle checkbox behavior
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-    let newData = [...data];  //copy of data array
-    
+    const newChecked = [...checked];    
 
 
     if (currentIndex === -1) {
@@ -211,7 +220,7 @@ export default function TodoList() {
     setChecked(newChecked);
     
     //update isDone property of task in database to match checkbox state
-    updateStatusTask(value)
+    checkboxUpdateStatusTask(value)
         .then(res => console.log(res))
         .catch(err => console.log(err));
         console.log("task has been updated");
@@ -271,7 +280,7 @@ export default function TodoList() {
     {data.map((task, i) => {
       const labelId = `checkbox-list-label-${task._id}`;
 
-      if (!task.isDone) {
+      if (task.status == "to-do") {
         return (
           <>
           <ListItem key={task._id} secondaryAction={
@@ -325,12 +334,12 @@ export default function TodoList() {
                 margin="dense"
                 id="outlined-select-status"
                 select
-                label='Status'
+                label={task.status}
+                placeholder={task.status}
                 defaultValue='to-do' 
                 helperText="Change status"
                 value={stat}
                 onChange={handleStatusChange}
-                disabled
               >
                 {status.map((stat) => (
                   <MenuItem key={stat.value} value={stat.value}>
@@ -386,6 +395,122 @@ export default function TodoList() {
   <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
     <ListSubheader>In progress</ListSubheader>
     <Divider variant="middle" />
+    {/* Display in-progress list items */}
+    {data.map((task, i) => {
+      const labelId = `checkbox-list-label-${task._id}`;
+
+      if (task.status == "in-progress") {
+        return (
+          <>
+          <ListItem key={task._id} secondaryAction={
+            <ButtonGroup>
+              <Rating name="customized-1" defaultValue={task.isImportant ? 1: 0} max={1} sx={{p:1, pr:0}} size='large' onClick={handleImportantToggle(task)}/>
+              <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
+                <EditIcon />
+              </IconButton>
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
+                <DeleteIcon />
+              </IconButton>
+            </ButtonGroup>
+          } disablePadding>
+            <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={checked.indexOf(task) !== -1}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ 'aria-labelledby': labelId }}
+                />
+              </ListItemIcon>
+              <ListItemText id={labelId} primary={task.name} />
+            </ListItemButton>
+          </ListItem>
+            <Dialog
+            fullWidth={true}
+            open={open.indexOf(task)!== -1} 
+            onClose={handleDialogToggle(task)} 
+            key={task._id}
+            >
+            <DialogTitle>
+            <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                label={task.name}
+                value={name}
+                defaultValue={task.name}
+                onChange= {handleNameChange}
+                type="text"
+                fullWidth
+                variant="outlined"
+                helperText="Change task name"
+  
+              />
+            </DialogTitle>
+            <DialogContent>
+              <TextField
+                margin="dense"
+                id="outlined-select-status"
+                select
+                placeholder={task.status}
+                label={task.status}
+                defaultValue='to-do' 
+                helperText="Change status"
+                value={stat}
+                onChange={handleStatusChange}
+                
+              >
+                {status.map((stat) => (
+                  <MenuItem key={stat.value} value={stat.value}>
+                    {stat.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                margin="dense"
+                id="outlined-select-category"
+                select
+                placeholder={task.cat}
+                label={task.cat}
+                defaultValue={task.cat} 
+                value={category}
+                onChange={handleCategoryChange}
+                helperText="Change category"
+                sx={{ml: 2}}
+              >
+                {categories.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                label={task.notes}
+                value={notes}
+                defaultValue={task.notes}
+                onChange= {handleNotesChange}
+                type="text"
+                fullWidth
+                variant="outlined"
+                multiline
+                helperText="Notes"
+                maxRows={6}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDialogToggle(task)}>Cancel</Button>
+              <Button onClick={() => handleClose(task)}>Confirm</Button>
+            </DialogActions>
+            </Dialog>
+    
+        </>
+        )
+      }
+    })}
   </List>
   <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
     <ListSubheader>Done</ListSubheader>
@@ -394,7 +519,7 @@ export default function TodoList() {
     {data.map((task, i) => {
       const labelId = `checkbox-list-label-${task._id}`;
 
-      if (task.isDone) {
+      if (task.status == "done") {
         return (
           <>
           <ListItem key={task._id} secondaryAction={
@@ -421,47 +546,53 @@ export default function TodoList() {
               <ListItemText id={labelId} primary={task.name} />
             </ListItemButton>
           </ListItem>
-          <Dialog
-          fullWidth={true}
-          open={open.indexOf(task)!== -1} 
-          onClose={handleDialogToggle(task)} 
-          key={task._id}
-          >
-          <DialogTitle>
-          <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label={task.name}
-              type="text"
-              fullWidth
-              variant="outlined"
-            />
-          </DialogTitle>
-          <DialogContent>
-            <TextField
-              margin="dense"
-              id="outlined-select-currency"
-              select
-              label="Status"
-              defaultValue='to-do'
-              helperText="Change status"
-              value={stat}
-              onChange={handleStatusChange}
-
+            <Dialog
+            fullWidth={true}
+            open={open.indexOf(task)!== -1} 
+            onClose={handleDialogToggle(task)} 
+            key={task._id}
             >
-              {status.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
+            <DialogTitle>
             <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                label={task.name}
+                value={name}
+                defaultValue={task.name}
+                onChange= {handleNameChange}
+                type="text"
+                fullWidth
+                variant="outlined"
+                helperText="Change task name"
+  
+              />
+            </DialogTitle>
+            <DialogContent>
+              <TextField
+                margin="dense"
+                id="outlined-select-status"
+                select
+                placeholder={task.status}
+                label={task.status}
+                defaultValue='to-do' 
+                helperText="Change status"
+                value={stat}
+                onChange={handleStatusChange}
+                
+              >
+                {status.map((stat) => (
+                  <MenuItem key={stat.value} value={stat.value}>
+                    {stat.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
                 margin="dense"
                 id="outlined-select-category"
                 select
-                label={task.cat}
                 placeholder={task.cat}
+                label={task.cat}
                 defaultValue={task.cat} 
                 value={category}
                 onChange={handleCategoryChange}
@@ -474,13 +605,29 @@ export default function TodoList() {
                   </MenuItem>
                 ))}
               </TextField>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDialogToggle(task)}>Cancel</Button>
-            <Button onClick={handleClose(value)}>Confirm</Button>
-          </DialogActions>
-        </Dialog>
-          </>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                label={task.notes}
+                value={notes}
+                defaultValue={task.notes}
+                onChange= {handleNotesChange}
+                type="text"
+                fullWidth
+                variant="outlined"
+                multiline
+                helperText="Notes"
+                maxRows={6}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDialogToggle(task)}>Cancel</Button>
+              <Button onClick={() => handleClose(task)}>Confirm</Button>
+            </DialogActions>
+            </Dialog>
+    
+        </>
         )
       }
     })}
