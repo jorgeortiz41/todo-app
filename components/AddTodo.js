@@ -8,7 +8,7 @@ import * as React from 'react';
 
 export default function AddTodo() {
 
-    const [task, setTask] = useState(null)
+    const [task, setTask] = useState('')
 
     const handleSubmit = (e) => {
         const sendEvent = async () => {
