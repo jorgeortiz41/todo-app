@@ -237,6 +237,11 @@ export default function TodoList() {
       newOpen.push(value);
     } else {
       newOpen.splice(currentIndex, 1);
+      //reset form fields
+      setName('');
+      setNotes('');
+      setCategory('');
+      setStat('');
     }
 
     setOpen(newOpen);
