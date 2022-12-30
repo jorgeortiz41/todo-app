@@ -108,9 +108,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
   );
 
-export default function SideBar() {
+export default function SideBar(props) {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+
+    //function on click to filter category and pass to parent component
+    const handleClick = (cat) => {
+        props.parentCallback(cat);
+    }
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -158,6 +163,7 @@ export default function SideBar() {
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
                 }}
+                onClick={() => handleClick(text.title)}
               >
                 <ListItemIcon
                   sx={{

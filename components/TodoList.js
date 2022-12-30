@@ -20,6 +20,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import MenuItem from '@mui/material/MenuItem';
 import Rating from '@mui/material/Rating';
+import SideBar from "../components/SideBar";
+import Stack from '@mui/material/Stack';
+import AddTodo from './AddTodo';
+
 
 
 
@@ -274,14 +278,30 @@ export default function TodoList() {
   if (isLoading) return <p>Loading...</p>
   if (!data) return <p>No task data</p>
 
-
+  //callback function filterCategory to filter tasks by category with props from sidebar and set state to filtered data
+  const filterCategory = (category) => {
+    if (category === 'all') {
+      setData(data);
+    } else {
+      const filteredData = data.filter(task => task.cat === category);
+      setData(filteredData);
+    }
+  }
 
   return (
     <>
+    <SideBar parentCallback={filterCategory} />
+    <Stack
+      justifyContent="center"
+      alignItems="center" 
+      spacing={{ xs: 1, sm: 2, md: 4 }}
+      sx = {{ flexGrow: 2, pt: 10 }}
+      >
+    <AddTodo />
     <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
     <ListSubheader>To-do</ListSubheader>
     <Divider variant="middle" />
-    {/* Display tasks checked if isDone is true and unchecked if isDone is false */}
+    {/* Display to-do list items*/}
     {data.map((task, i) => {
       const labelId = `checkbox-list-label-${task._id}`;
 
@@ -637,6 +657,7 @@ export default function TodoList() {
       }
     })}
   </List>
+  </Stack>
   </>
   )
 }
