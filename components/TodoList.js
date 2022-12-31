@@ -85,7 +85,7 @@ export default function TodoList() {
       })
   }, [])
 
-  ////////////////////////////ON-CHANGE EFFECTS/////////////////////////////////////////////////
+  ////////////////////////////ON-CHANGE EFFECTS///////////////////////////
 
   const handleNameChange = (event) => {
     //use setTask to update the task object
@@ -111,7 +111,7 @@ export default function TodoList() {
     setCategory(event.target.value)
   };
 
-  //////////////////////////CRUD/////////////////////////////////////////////////
+  //////////////////////////CRUD//////////////////////////////////////////
 
   //handle task deletion by id
   const handleDelete = (id) => {
@@ -274,36 +274,39 @@ export default function TodoList() {
     window.location.reload(false);
   };
 
-  //displayed when loading or no data
-  if (isLoading) return <p>Loading...</p>
-  if (!data) return <p>No task data</p>
-
-  //callback function filterCategory to filter tasks by category with props from sidebar and set state to filtered data
+  /////////////////////CALLBACK//////////////////////////////////////////
   const filterCategory = (category) => {
     //call getTasks and filter by category
-    let filteredData = []
+    setData([]);
     const getTasks = async () => {
+      let filteredData = [];
+      let newData = [...data];
       const response = await fetch('http://localhost:5000/api/tasks');
-      const data = await response.json();
+      newData = await response.json();
       if (category === 'All') {
-        return data;
+        return newData;
       }
       if(category === 'Important') {
-         filteredData = data.filter(task => task.isImportant === true);
+         filteredData = newData.filter(task => task.isImportant === true);
         return filteredData;
       }
-      filteredData = data.filter(task => task.cat === category);
-      return filteredData;
+      else{
+        filteredData = newData.filter(task => task.cat === category);
+        return filteredData;
+      }
     }
 
     getTasks()
-      .then(data => setData(data))
+      .then(newData => setData(newData))
       .catch(err => console.log(err));
 
-    //set state to filtered data
-    setData(data);
-
   }
+
+  ////////////////////////////RENDER/////////////////////////////////////
+
+  //displayed when loading or no data
+  if (isLoading) return <p>Loading...</p>
+  if (!data) return <p>No task data</p>
 
   return (
     <>
