@@ -1,4 +1,5 @@
-import React from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react'
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -21,6 +22,15 @@ import SchoolIcon from '@mui/icons-material/School';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import ListIcon from '@mui/icons-material/List';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 
 const drawerWidth = 240;
 const category = [
@@ -110,11 +120,30 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function SideBar(props) {
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [dopen, setDopen] = useState(false);
+    const [name, setName] = useState('')
+    const [lists, setLists] = useState(null)
+    const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [isListLoading, setIsListLoading] = useState(true);
+
+    //useEffect to get lists from localhost:5000/lists and set them to data state
+    useEffect(() => {
+      setIsListLoading(true)
+      fetch('http://localhost:5000/api/lists')
+        .then((res) => res.json())
+        .then((lists) => {
+          setLists(lists)
+          setIsListLoading(false)
+          console.log(lists)
+        })
+    }, [])
+        
 
     //function on click to filter category and pass to parent component
-    const handleClick = (cat) => {
+    const handleClick = (cat, index) => {
         props.parentCallback(cat);
+        setSelectedIndex(index);
     }
 
     const handleDrawerOpen = () => {
@@ -125,6 +154,45 @@ export default function SideBar(props) {
         setOpen(false);
     };
 
+    const handleDialogOpen = () => {
+      setDopen(true);
+    };
+
+    const handleDialogClose = () => {
+      setDopen(false);
+      //reset form fields on close
+      setName('');
+    };
+
+    const handleClose = () => {
+      const sendEvent = async () => {
+        const response = await fetch('http://localhost:5000/api/addlist/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: name,
+          }),
+        });
+        const body = await response.json();
+        if (response.status !== 200) {
+          throw Error(body.message)
+        }
+        return body;
+      };
+      sendEvent()
+        .then(res => console.log(res))
+        .catch(err => console.log(err));
+  
+    // e.preventDefault();
+    window.location.reload(false);
+    setName('');
+    setDopen(false);
+    };
+
+    if (isListLoading) return <p>Loading...</p>
+    if (!lists) return <p>No list data</p>
 
     return(
         <>
@@ -155,15 +223,17 @@ export default function SideBar(props) {
         </DrawerHeader>
         <Divider />
         <List>
-          {category.map((text) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
+          {category.map((text, i) => (
+            <>
+            <ListItem key={i} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
                 }}
-                onClick={() => handleClick(text.title)}
+                selected={selectedIndex === i}
+                onClick={() => handleClick(text.title, i)}
               >
                 <ListItemIcon
                   sx={{
@@ -177,12 +247,60 @@ export default function SideBar(props) {
                 <ListItemText primary={text.title} sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>
             </ListItem>
+            </>
           ))}
         </List>
         <Divider />
+        <ListItem key="add" disablePadding sx={{ display: 'block'}}>
+          <ListItemButton
+            sx={{
+              minHeight: 48,
+              justifyContent: open ? 'initial' : 'center',
+              px: 2.5,
+              pt: 5,
+              pb: 5
+            }}
+            onClick={handleDialogOpen}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: open ? 3 : 'auto',
+                justifyContent: 'center',
+              }}
+            >
+              <PlaylistAddIcon />
+            </ListItemIcon>
+            <ListItemText primary="Add New List" sx={{ opacity: open ? 1 : 0 }} />
+          </ListItemButton>
+        </ListItem>
+        <Dialog open={dopen} onClose={handleDialogClose}>
+        <DialogTitle>Add New List</DialogTitle>
+        <DialogContent>
+          
+          <DialogContentText>
+            Please enter the name of the new list
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="List Name"
+            type="text"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={() => handleClose()}>Add</Button>
+        </DialogActions>
+      </Dialog>
+        <Divider />
         <List>
-          {folders.map((text) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
+          {lists.map((list, i) => (
+            <ListItem key={i} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 sx={{
                   minHeight: 48,
@@ -197,9 +315,9 @@ export default function SideBar(props) {
                     justifyContent: 'center',
                   }}
                 >
-                  {text.icon}
+                  <ListIcon />
                 </ListItemIcon>
-                <ListItemText primary={text.title} sx={{ opacity: open ? 1 : 0 }} />
+                <ListItemText primary={list.name} sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>
             </ListItem>
           ))}
