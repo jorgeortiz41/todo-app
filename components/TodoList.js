@@ -280,12 +280,29 @@ export default function TodoList() {
 
   //callback function filterCategory to filter tasks by category with props from sidebar and set state to filtered data
   const filterCategory = (category) => {
-    if (category === 'all') {
-      setData(data);
-    } else {
-      const filteredData = data.filter(task => task.cat === category);
-      setData(filteredData);
+    //call getTasks and filter by category
+    let filteredData = []
+    const getTasks = async () => {
+      const response = await fetch('http://localhost:5000/api/tasks');
+      const data = await response.json();
+      if (category === 'All') {
+        return data;
+      }
+      if(category === 'Important') {
+         filteredData = data.filter(task => task.isImportant === true);
+        return filteredData;
+      }
+      filteredData = data.filter(task => task.cat === category);
+      return filteredData;
     }
+
+    getTasks()
+      .then(data => setData(data))
+      .catch(err => console.log(err));
+
+    //set state to filtered data
+    setData(data);
+
   }
 
   return (
