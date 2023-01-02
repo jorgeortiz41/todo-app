@@ -71,6 +71,8 @@ export default function TodoList() {
   const [stat, setStat] = useState('')
   const [notes, setNotes] = useState('')
   const [category, setCategory] = useState('')
+  const [lists, setLists] = useState(null)
+  const [selectedList, setSelectedList] = useState('')
 
 
   //fetch tasks from api
@@ -80,6 +82,12 @@ export default function TodoList() {
       .then((res) => res.json())
       .then((data) => {
         setData(data)
+        console.log(data)
+      })
+    fetch('http://localhost:5000/api/lists')
+      .then((res) => res.json())
+      .then((data) => {
+        setLists(data)
         setLoading(false)
         console.log(data)
       })
@@ -109,6 +117,10 @@ export default function TodoList() {
 
   const handleCategoryChange = (event) => {
     setCategory(event.target.value)
+  };
+
+  const handleListChange = (event) => {
+    setSelectedList(event.target.value)
   };
 
   //////////////////////////CRUD//////////////////////////////////////////
@@ -141,6 +153,7 @@ export default function TodoList() {
     const newNotes = notes === '' ? value.notes : notes;
     const newCategory = category === '' ? value.cat : category;
     const newStat = stat === '' ? value.status : stat;
+    const newList = selectedList === '' ? value.list : selectedList;
     const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
         method: 'PUT',
         headers: {
@@ -151,6 +164,7 @@ export default function TodoList() {
             notes: newNotes,
             cat: newCategory,
             status: newStat,
+            list: newList,
         }),
     });
     const body = await response.json();
@@ -207,6 +221,21 @@ export default function TodoList() {
     return body;
   };
 
+  //get lists from database
+  const getLists = async () => {
+    const response = await fetch('http://localhost:5000/api/lists', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    const body = await response.json();
+    if (response.status !== 200) {
+        throw Error(body.message)
+    }
+    return body;
+  };
+
   ////////////////////////////TOGGLES/////////////////////////////////////
 
   //handle checkbox behavior
@@ -246,6 +275,7 @@ export default function TodoList() {
       setNotes('');
       setCategory('');
       setStat('');
+      setSelectedList('');
     }
 
     setOpen(newOpen);
@@ -302,6 +332,29 @@ export default function TodoList() {
 
   }
 
+  const filterList = (list) => {
+    //call getTasks and filter by list
+    setData([]);
+    const getTasks = async () => {
+      let filteredData = [];
+      let newData = [...data];
+      const response = await fetch('http://localhost:5000/api/tasks');
+      newData = await response.json();
+      if (list === '') {
+        return newData;
+      }
+      else{
+        filteredData = newData.filter(task => task.list === list);
+        return filteredData;
+      }
+    }
+
+    getTasks()
+      .then(newData => setData(newData))
+      .catch(err => console.log(err));
+
+  }
+
   ////////////////////////////RENDER/////////////////////////////////////
 
   //displayed when loading or no data
@@ -310,7 +363,7 @@ export default function TodoList() {
 
   return (
     <>
-    <SideBar parentCallback={filterCategory} />
+    <SideBar parentCallback={filterCategory} listParentCallback={filterList} />
     <Stack
       justifyContent="center"
       alignItems="center" 
@@ -407,6 +460,24 @@ export default function TodoList() {
                 {categories.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                margin="dense"
+                id="outlined-select-list"
+                select
+                placeholder={task.list}
+                label={task.list}
+                defaultValue={task.list} 
+                value={selectedList}
+                onChange={handleListChange}
+                helperText="Select list"
+                sx={{ml: 3, width: 125}}
+              >
+                {lists.map((option, i) => (
+                  <MenuItem key={i} value={option.name}>
+                    {option.name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -531,6 +602,24 @@ export default function TodoList() {
                 ))}
               </TextField>
               <TextField
+                margin="dense"
+                id="outlined-select-list"
+                select
+                placeholder={task.list}
+                label={task.list}
+                defaultValue={task.list} 
+                value={selectedList}
+                onChange={handleListChange}
+                helperText="Select list"
+                sx={{ml: 3, width: 125}}
+              >
+                {lists.map((option, i) => (
+                  <MenuItem key={i} value={option.name}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
                 autoFocus
                 margin="dense"
                 id="name"
@@ -647,6 +736,24 @@ export default function TodoList() {
                 {categories.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                margin="dense"
+                id="outlined-select-list"
+                select
+                placeholder={task.list}
+                label={task.list}
+                defaultValue={task.list} 
+                value={selectedList}
+                onChange={handleListChange}
+                helperText="Select list"
+                sx={{ml: 3, width: 125}}
+              >
+                {lists.map((option, i) => (
+                  <MenuItem key={i} value={option.name}>
+                    {option.name}
                   </MenuItem>
                 ))}
               </TextField>

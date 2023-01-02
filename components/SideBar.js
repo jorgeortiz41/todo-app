@@ -146,6 +146,11 @@ export default function SideBar(props) {
         setSelectedIndex(index);
     }
 
+    const handleListClick = (list, index) => {
+      props.listParentCallback(list);
+      setSelectedIndex(index);
+    }
+
     const handleDrawerOpen = () => {
         setOpen(true);
     };
@@ -307,6 +312,8 @@ export default function SideBar(props) {
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
                 }}
+                selected={selectedIndex === i}
+                onClick={() => handleListClick(list.name, i)}
               >
                 <ListItemIcon
                   sx={{
