@@ -125,6 +125,7 @@ export default function SideBar(props) {
     const [name, setName] = useState('')
     const [lists, setLists] = useState(null)
     const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [customIndex, setCustomIndex] = React.useState(-1);
     const [isListLoading, setIsListLoading] = useState(true);
 
     //useEffect to get lists from localhost:5000/lists and set them to data state
@@ -144,11 +145,13 @@ export default function SideBar(props) {
     const handleClick = (cat, index) => {
         props.parentCallback(cat);
         setSelectedIndex(index);
+        setCustomIndex(-1);
     }
 
     const handleListClick = (list, index) => {
       props.listParentCallback(list);
-      setSelectedIndex(index);
+      setCustomIndex(index);
+      setSelectedIndex(-1);
     }
 
     const handleDrawerOpen = () => {
@@ -312,7 +315,7 @@ export default function SideBar(props) {
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
                 }}
-                selected={selectedIndex === i}
+                selected={customIndex === i}
                 onClick={() => handleListClick(list.name, i)}
               >
                 <ListItemIcon
