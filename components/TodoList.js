@@ -467,8 +467,8 @@ export default function TodoList() {
                 margin="dense"
                 id="outlined-select-list"
                 select
-                placeholder={task.list}
-                label={task.list}
+                placeholder={task.list == null ? 'None' : task.list}
+                label={task.list == null ? 'None' : task.list}
                 defaultValue={task.list} 
                 value={selectedList}
                 onChange={handleListChange}
