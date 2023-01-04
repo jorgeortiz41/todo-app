@@ -19,18 +19,20 @@ import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
 import WorkIcon from '@mui/icons-material/Work';
 import HomeIcon from '@mui/icons-material/Home';
 import SchoolIcon from '@mui/icons-material/School';
-import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import ListIcon from '@mui/icons-material/List';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import StarIcon from '@mui/icons-material/Star';
+import Tooltip from '@mui/material/Tooltip';
 
 const drawerWidth = 240;
 const category = [
@@ -43,7 +45,7 @@ const category = [
     {title: 'School',
     icon: <SchoolIcon/>},
     {title: 'Important',
-    icon: <PriorityHighIcon/>},
+    icon: <StarIcon/>},
     {title: 'Tasks',
     icon: <AssignmentIcon/>},
 ];
@@ -122,6 +124,7 @@ export default function SideBar(props) {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
     const [dopen, setDopen] = useState(false);
+    const [edit, setEdit] = useState([0]);
     const [name, setName] = useState('')
     const [lists, setLists] = useState(null)
     const [selectedIndex, setSelectedIndex] = React.useState(0);
@@ -172,6 +175,54 @@ export default function SideBar(props) {
       setName('');
     };
 
+    //handle dialog for custom list edit button
+    const handleEdit = (value) => () => {
+      const currentIndex = edit.indexOf(value);
+      const newEdit = [...edit];
+  
+      if (currentIndex === -1) {
+        newEdit.push(value);
+      } else {
+        newEdit.splice(currentIndex, 1);
+        //reset form fields
+        setName('');
+      }
+  
+      setEdit(newEdit);
+    };
+      
+    //handle edit dialog close
+    const handleEditConfirm = (list)  => {
+      const sendUpdate = async (list) => {
+        const newName = name === '' ? list.name : name;
+        const response = await fetch('http://localhost:5000/api/updatelist/' + list._id, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: newName,
+          }),
+        });
+        const body = await response.json();
+        if (response.status !== 200) {
+          throw Error(body.message)
+        }
+        return body;
+      };
+
+      sendUpdate(list)
+        .then(res => console.log(res))
+        .catch(err => console.log(err));
+        console.log("list updated");
+
+      // e.preventDefault();
+      handleEdit(list);
+      window.location.reload(false);
+    };
+
+
+    //handle add list dialog close
     const handleClose = () => {
       const sendEvent = async () => {
         const response = await fetch('http://localhost:5000/api/addlist/', {
@@ -189,6 +240,7 @@ export default function SideBar(props) {
         }
         return body;
       };
+
       sendEvent()
         .then(res => console.log(res))
         .catch(err => console.log(err));
@@ -197,6 +249,29 @@ export default function SideBar(props) {
     window.location.reload(false);
     setName('');
     setDopen(false);
+    };
+
+    //handle delete list by id
+    const handleDelete = (id) => {
+      const sendEvent = async () => {
+        const response = await fetch('http://localhost:5000/api/eraselist/' + id, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const body = await response.json();
+        if (response.status !== 200) {
+          throw Error(body.message)
+        }
+        return body;
+      };
+      sendEvent()
+        .then(res => console.log(res))
+        .catch(err => console.log(err));
+
+    // e.preventDefault();
+    window.location.reload(false);
     };
 
     if (isListLoading) return <p>Loading...</p>
@@ -230,85 +305,104 @@ export default function SideBar(props) {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
-          {category.map((text, i) => (
-            <>
-            <ListItem key={i} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-                selected={selectedIndex === i}
-                onClick={() => handleClick(text.title, i)}
-              >
-                <ListItemIcon
+          <List>
+            {category.map((text, i) => (
+              <>
+              <ListItem key={i} disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
                   sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
                   }}
+                  selected={selectedIndex === i}
+                  onClick={() => handleClick(text.title, i)}
                 >
-                  {text.icon}
-                </ListItemIcon>
-                <ListItemText primary={text.title} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-            </>
-          ))}
-        </List>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {text.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={text.title} sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+              </ListItem>
+              </>
+            ))}
+          </List>
         <Divider />
-        <ListItem key="add" disablePadding sx={{ display: 'block'}}>
-          <ListItemButton
-            sx={{
-              minHeight: 48,
-              justifyContent: open ? 'initial' : 'center',
-              px: 2.5,
-              pt: 5,
-              pb: 5
-            }}
-            onClick={handleDialogOpen}
-          >
-            <ListItemIcon
+          <ListItem key="add" disablePadding sx={{ display: 'block'}}>
+            <ListItemButton
               sx={{
-                minWidth: 0,
-                mr: open ? 3 : 'auto',
-                justifyContent: 'center',
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+                pt: 5,
+                pb: 5
               }}
+              onClick={handleDialogOpen}
             >
-              <PlaylistAddIcon />
-            </ListItemIcon>
-            <ListItemText primary="Add New List" sx={{ opacity: open ? 1 : 0 }} />
-          </ListItemButton>
-        </ListItem>
-        <Dialog open={dopen} onClose={handleDialogClose}>
-        <DialogTitle>Add New List</DialogTitle>
-        <DialogContent>
-          
-          <DialogContentText>
-            Please enter the name of the new list
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="List Name"
-            type="text"
-            fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={() => handleClose()}>Add</Button>
-        </DialogActions>
-      </Dialog>
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                <PlaylistAddIcon />
+              </ListItemIcon>
+              <ListItemText primary="Add Custom List" sx={{ opacity: open ? 1 : 0 }} />
+            </ListItemButton>
+          </ListItem>
+          <Dialog open={dopen} onClose={handleDialogClose}>
+          <DialogTitle>Add Custom List</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="List Name"
+              type="text"
+              fullWidth
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              helperText="Please enter a name for the custom list."
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>Cancel</Button>
+            <Button onClick={() => handleClose()}>Add</Button>
+          </DialogActions>
+          </Dialog>
         <Divider />
         <List>
           {lists.map((list, i) => (
-            <ListItem key={i} disablePadding sx={{ display: 'block' }}>
+            <>
+            <ListItem 
+            key={i} 
+            disablePadding 
+            sx={{ display: 'block' }}
+            secondaryAction={
+              <ButtonGroup sx={{
+                justifyContent: open ? 'initial' : 'center',
+                opacity: open ? 1 : 0 
+              }}>
+              <Tooltip title="Edit" disableInteractive followCursor>
+              <IconButton edge="end" aria-label="edit" onClick={handleEdit(list)}>
+                <EditIcon />
+              </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete" disableInteractive followCursor>
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(list._id)}> 
+                <DeleteIcon />
+              </IconButton>
+              </Tooltip>
+            </ButtonGroup>
+            }
+            >
               <ListItemButton
                 sx={{
                   minHeight: 48,
@@ -330,6 +424,27 @@ export default function SideBar(props) {
                 <ListItemText primary={list.name} sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>
             </ListItem>
+            <Dialog open={edit.indexOf(list)!== -1 } onClose={handleEdit(list)}>
+              <DialogTitle>Edit Custom List</DialogTitle>
+                <DialogContent>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="name"
+                    label={list.name}
+                    type="text"
+                    fullWidth
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    helperText="Rename list."
+                  />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleEdit(list)}>Cancel</Button>
+                <Button onClick={() => handleEditConfirm(list)}>Confirm</Button>
+              </DialogActions>
+            </Dialog>
+            </>
           ))}
         </List>
       </Drawer>
