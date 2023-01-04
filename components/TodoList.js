@@ -23,6 +23,7 @@ import Rating from '@mui/material/Rating';
 import SideBar from "../components/SideBar";
 import Stack from '@mui/material/Stack';
 import AddTodo from './AddTodo';
+import Tooltip from '@mui/material/Tooltip';
 
 
 
@@ -383,13 +384,19 @@ export default function TodoList() {
           <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
+              <Tooltip title="Important"  disableInteractive followCursor>
               <Rating name="customized-1" defaultValue={task.isImportant ? 1: 0} max={1} sx={{p:1, pr:0}} size='large' onClick={handleImportantToggle(task)}/>
+              </Tooltip>
+              <Tooltip title="Edit"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
                 <EditIcon />
               </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
                 <DeleteIcon />
               </IconButton>
+              </Tooltip>
             </ButtonGroup>
           } disablePadding>
             <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
@@ -520,13 +527,19 @@ export default function TodoList() {
           <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
+              <Tooltip title="Important"  disableInteractive followCursor>
               <Rating name="customized-1" defaultValue={task.isImportant ? 1: 0} max={1} sx={{p:1, pr:0}} size='large' onClick={handleImportantToggle(task)}/>
+              </Tooltip>
+              <Tooltip title="Edit"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
                 <EditIcon />
               </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
                 <DeleteIcon />
               </IconButton>
+              </Tooltip>
             </ButtonGroup>
           } disablePadding>
             <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
@@ -658,13 +671,19 @@ export default function TodoList() {
           <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
+              <Tooltip title="Important"  disableInteractive followCursor>
               <Rating name="customized-1" defaultValue={task.isImportant ? 1: 0} max={1} sx={{p:1, pr:0}} size='large' onClick={handleImportantToggle(task)}/>
+              </Tooltip>
+              <Tooltip title="Edit"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
                 <EditIcon />
               </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
                 <DeleteIcon />
               </IconButton>
+              </Tooltip>
             </ButtonGroup>
           } disablePadding>
             <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
