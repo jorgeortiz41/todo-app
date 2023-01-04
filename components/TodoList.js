@@ -20,6 +20,11 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import MenuItem from '@mui/material/MenuItem';
 import Rating from '@mui/material/Rating';
+import SideBar from "../components/SideBar";
+import Stack from '@mui/material/Stack';
+import AddTodo from './AddTodo';
+import Tooltip from '@mui/material/Tooltip';
+
 
 
 
@@ -67,6 +72,8 @@ export default function TodoList() {
   const [stat, setStat] = useState('')
   const [notes, setNotes] = useState('')
   const [category, setCategory] = useState('')
+  const [lists, setLists] = useState(null)
+  const [selectedList, setSelectedList] = useState('')
 
 
   //fetch tasks from api
@@ -76,12 +83,18 @@ export default function TodoList() {
       .then((res) => res.json())
       .then((data) => {
         setData(data)
+        console.log(data)
+      })
+    fetch('http://localhost:5000/api/lists')
+      .then((res) => res.json())
+      .then((data) => {
+        setLists(data)
         setLoading(false)
         console.log(data)
       })
   }, [])
 
-  ////////////////////////////ON-CHANGE EFFECTS/////////////////////////////////////////////////
+  ////////////////////////////ON-CHANGE EFFECTS///////////////////////////
 
   const handleNameChange = (event) => {
     //use setTask to update the task object
@@ -107,7 +120,11 @@ export default function TodoList() {
     setCategory(event.target.value)
   };
 
-  //////////////////////////CRUD/////////////////////////////////////////////////
+  const handleListChange = (event) => {
+    setSelectedList(event.target.value)
+  };
+
+  //////////////////////////CRUD//////////////////////////////////////////
 
   //handle task deletion by id
   const handleDelete = (id) => {
@@ -137,6 +154,7 @@ export default function TodoList() {
     const newNotes = notes === '' ? value.notes : notes;
     const newCategory = category === '' ? value.cat : category;
     const newStat = stat === '' ? value.status : stat;
+    const newList = selectedList === '' ? value.list : selectedList;
     const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
         method: 'PUT',
         headers: {
@@ -147,6 +165,7 @@ export default function TodoList() {
             notes: newNotes,
             cat: newCategory,
             status: newStat,
+            list: newList,
         }),
     });
     const body = await response.json();
@@ -203,6 +222,21 @@ export default function TodoList() {
     return body;
   };
 
+  //get lists from database
+  const getLists = async () => {
+    const response = await fetch('http://localhost:5000/api/lists', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    const body = await response.json();
+    if (response.status !== 200) {
+        throw Error(body.message)
+    }
+    return body;
+  };
+
   ////////////////////////////TOGGLES/////////////////////////////////////
 
   //handle checkbox behavior
@@ -242,6 +276,7 @@ export default function TodoList() {
       setNotes('');
       setCategory('');
       setStat('');
+      setSelectedList('');
     }
 
     setOpen(newOpen);
@@ -270,18 +305,77 @@ export default function TodoList() {
     window.location.reload(false);
   };
 
+  /////////////////////CALLBACK//////////////////////////////////////////
+  const filterCategory = (category) => {
+    //call getTasks and filter by category
+    setData([]);
+    const getTasks = async () => {
+      let filteredData = [];
+      let newData = [...data];
+      const response = await fetch('http://localhost:5000/api/tasks');
+      newData = await response.json();
+      if (category === 'All') {
+        return newData;
+      }
+      if(category === 'Important') {
+         filteredData = newData.filter(task => task.isImportant === true);
+        return filteredData;
+      }
+      else{
+        filteredData = newData.filter(task => task.cat === category);
+        return filteredData;
+      }
+    }
+
+    getTasks()
+      .then(newData => setData(newData))
+      .catch(err => console.log(err));
+
+  }
+
+  const filterList = (list) => {
+    //call getTasks and filter by list
+    setData([]);
+    const getTasks = async () => {
+      let filteredData = [];
+      let newData = [...data];
+      const response = await fetch('http://localhost:5000/api/tasks');
+      newData = await response.json();
+      if (list === '') {
+        return newData;
+      }
+      else{
+        filteredData = newData.filter(task => task.list === list);
+        return filteredData;
+      }
+    }
+
+    getTasks()
+      .then(newData => setData(newData))
+      .catch(err => console.log(err));
+
+  }
+
+  ////////////////////////////RENDER/////////////////////////////////////
+
   //displayed when loading or no data
   if (isLoading) return <p>Loading...</p>
   if (!data) return <p>No task data</p>
 
-
-
   return (
     <>
+    <SideBar parentCallback={filterCategory} listParentCallback={filterList} />
+    <Stack
+      justifyContent="center"
+      alignItems="center" 
+      spacing={{ xs: 1, sm: 2, md: 4 }}
+      sx = {{ flexGrow: 2, pt: 10 }}
+      >
+    <AddTodo />
     <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
     <ListSubheader>To-do</ListSubheader>
     <Divider variant="middle" />
-    {/* Display tasks checked if isDone is true and unchecked if isDone is false */}
+    {/* Display to-do list items*/}
     {data.map((task, i) => {
       const labelId = `checkbox-list-label-${task._id}`;
 
@@ -290,13 +384,19 @@ export default function TodoList() {
           <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
+              <Tooltip title="Important"  disableInteractive followCursor>
               <Rating name="customized-1" defaultValue={task.isImportant ? 1: 0} max={1} sx={{p:1, pr:0}} size='large' onClick={handleImportantToggle(task)}/>
+              </Tooltip>
+              <Tooltip title="Edit"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
                 <EditIcon />
               </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
                 <DeleteIcon />
               </IconButton>
+              </Tooltip>
             </ButtonGroup>
           } disablePadding>
             <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
@@ -371,6 +471,24 @@ export default function TodoList() {
                 ))}
               </TextField>
               <TextField
+                margin="dense"
+                id="outlined-select-list"
+                select
+                placeholder={task.list == null ? 'None' : task.list}
+                label={task.list == null ? 'None' : task.list}
+                defaultValue={task.list} 
+                value={selectedList}
+                onChange={handleListChange}
+                helperText="Select list"
+                sx={{ml: 3, width: 125}}
+              >
+                {lists.map((option, i) => (
+                  <MenuItem key={i} value={option.name}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
                 autoFocus
                 margin="dense"
                 id="name"
@@ -409,13 +527,19 @@ export default function TodoList() {
           <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
+              <Tooltip title="Important"  disableInteractive followCursor>
               <Rating name="customized-1" defaultValue={task.isImportant ? 1: 0} max={1} sx={{p:1, pr:0}} size='large' onClick={handleImportantToggle(task)}/>
+              </Tooltip>
+              <Tooltip title="Edit"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
                 <EditIcon />
               </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
                 <DeleteIcon />
               </IconButton>
+              </Tooltip>
             </ButtonGroup>
           } disablePadding>
             <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
@@ -491,6 +615,24 @@ export default function TodoList() {
                 ))}
               </TextField>
               <TextField
+                margin="dense"
+                id="outlined-select-list"
+                select
+                placeholder={task.list}
+                label={task.list}
+                defaultValue={task.list} 
+                value={selectedList}
+                onChange={handleListChange}
+                helperText="Select list"
+                sx={{ml: 3, width: 125}}
+              >
+                {lists.map((option, i) => (
+                  <MenuItem key={i} value={option.name}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
                 autoFocus
                 margin="dense"
                 id="name"
@@ -529,13 +671,19 @@ export default function TodoList() {
           <>
           <ListItem key={task._id} secondaryAction={
             <ButtonGroup>
+              <Tooltip title="Important"  disableInteractive followCursor>
               <Rating name="customized-1" defaultValue={task.isImportant ? 1: 0} max={1} sx={{p:1, pr:0}} size='large' onClick={handleImportantToggle(task)}/>
+              </Tooltip>
+              <Tooltip title="Edit"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="edit" onClick={handleDialogToggle(task)}>
                 <EditIcon />
               </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete"  disableInteractive followCursor>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)}>
                 <DeleteIcon />
               </IconButton>
+              </Tooltip>
             </ButtonGroup>
           } disablePadding>
             <ListItemButton role={undefined} onClick={handleToggle(task)} dense>
@@ -611,6 +759,24 @@ export default function TodoList() {
                 ))}
               </TextField>
               <TextField
+                margin="dense"
+                id="outlined-select-list"
+                select
+                placeholder={task.list}
+                label={task.list}
+                defaultValue={task.list} 
+                value={selectedList}
+                onChange={handleListChange}
+                helperText="Select list"
+                sx={{ml: 3, width: 125}}
+              >
+                {lists.map((option, i) => (
+                  <MenuItem key={i} value={option.name}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
                 autoFocus
                 margin="dense"
                 id="name"
@@ -637,6 +803,7 @@ export default function TodoList() {
       }
     })}
   </List>
+  </Stack>
   </>
   )
 }
