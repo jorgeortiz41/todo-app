@@ -34,6 +34,8 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import StarIcon from '@mui/icons-material/Star';
 import Tooltip from '@mui/material/Tooltip';
 
+
+///////////////////////////SIDEBAR SETTINGS/////////////////////////////////////////
 const drawerWidth = 240;
 const category = [
     {title: 'All',
@@ -49,11 +51,6 @@ const category = [
     {title: 'Tasks',
     icon: <AssignmentIcon/>},
 ];
-const folders = [
-    {title: 'CustomList',
-    icon: <ListIcon/>},
-];
-
 
 const openedMixin = (theme) => ({
     width: drawerWidth,
@@ -119,6 +116,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
       }),
     }),
   );
+
+////////////////////////////////////////////////////////////////////////////////////
 
 export default function SideBar(props) {
     const theme = useTheme();
@@ -389,14 +388,15 @@ export default function SideBar(props) {
               <ButtonGroup sx={{
                 justifyContent: open ? 'initial' : 'center',
                 opacity: open ? 1 : 0 
-              }}>
+              }}
+              >
               <Tooltip title="Edit" disableInteractive followCursor>
-              <IconButton edge="end" aria-label="edit" onClick={handleEdit(list)}>
+              <IconButton edge="end" aria-label="edit" onClick={handleEdit(list)} disabled={open ? false : true}>
                 <EditIcon />
               </IconButton>
               </Tooltip>
               <Tooltip title="Delete" disableInteractive followCursor>
-              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(list._id)}> 
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(list._id)} disabled={open ? false : true}> 
                 <DeleteIcon />
               </IconButton>
               </Tooltip>
