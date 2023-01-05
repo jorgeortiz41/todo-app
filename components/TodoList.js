@@ -222,21 +222,6 @@ export default function TodoList() {
     return body;
   };
 
-  //get lists from database
-  const getLists = async () => {
-    const response = await fetch('http://localhost:5000/api/lists', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-    const body = await response.json();
-    if (response.status !== 200) {
-        throw Error(body.message)
-    }
-    return body;
-  };
-
   ////////////////////////////TOGGLES/////////////////////////////////////
 
   //handle checkbox behavior
@@ -487,6 +472,7 @@ export default function TodoList() {
                     {option.name}
                   </MenuItem>
                 ))}
+                <MenuItem value='None'>None</MenuItem>
               </TextField>
               <TextField
                 autoFocus
@@ -631,6 +617,7 @@ export default function TodoList() {
                     {option.name}
                   </MenuItem>
                 ))}
+                <MenuItem value='None'>None</MenuItem>
               </TextField>
               <TextField
                 autoFocus
@@ -775,6 +762,7 @@ export default function TodoList() {
                     {option.name}
                   </MenuItem>
                 ))}
+                <MenuItem value='None'>None</MenuItem>
               </TextField>
               <TextField
                 autoFocus
