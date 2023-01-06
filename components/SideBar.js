@@ -308,6 +308,7 @@ export default function SideBar(props) {
             {category.map((text, i) => (
               <>
               <ListItem key={i} disablePadding sx={{ display: 'block' }}>
+              <Tooltip title={text.title} placement="right">
                 <ListItemButton
                   sx={{
                     minHeight: 48,
@@ -317,6 +318,7 @@ export default function SideBar(props) {
                   selected={selectedIndex === i}
                   onClick={() => handleClick(text.title, i)}
                 >
+                  
                   <ListItemIcon
                     sx={{
                       minWidth: 0,
@@ -326,14 +328,17 @@ export default function SideBar(props) {
                   >
                     {text.icon}
                   </ListItemIcon>
+                  
                   <ListItemText primary={text.title} sx={{ opacity: open ? 1 : 0 }} />
                 </ListItemButton>
+                </Tooltip>
               </ListItem>
               </>
             ))}
           </List>
         <Divider />
           <ListItem key="add" disablePadding sx={{ display: 'block'}}>
+            <Tooltip title="Add Custom List" placement="right">
             <ListItemButton
               sx={{
                 minHeight: 48,
@@ -344,6 +349,7 @@ export default function SideBar(props) {
               }}
               onClick={handleDialogOpen}
             >
+
               <ListItemIcon
                 sx={{
                   minWidth: 0,
@@ -355,6 +361,7 @@ export default function SideBar(props) {
               </ListItemIcon>
               <ListItemText primary="Add Custom List" sx={{ opacity: open ? 1 : 0 }} />
             </ListItemButton>
+            </Tooltip>
           </ListItem>
           <Dialog open={dopen} onClose={handleDialogClose}>
           <DialogTitle>Add Custom List</DialogTitle>
@@ -403,6 +410,7 @@ export default function SideBar(props) {
             </ButtonGroup>
             }
             >
+              <Tooltip title={list.name} placement="right">
               <ListItemButton
                 sx={{
                   minHeight: 48,
@@ -423,6 +431,7 @@ export default function SideBar(props) {
                 </ListItemIcon>
                 <ListItemText primary={list.name} sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>
+              </Tooltip>
             </ListItem>
             <Dialog open={edit.indexOf(list)!== -1 } onClose={handleEdit(list)}>
               <DialogTitle>Edit Custom List</DialogTitle>
