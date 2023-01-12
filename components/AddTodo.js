@@ -1,16 +1,22 @@
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import AddIcon from '@mui/icons-material/Add';
-import { Input } from '@mui/material';
 import { useState, useEffect } from 'react'
 import * as React from 'react';
 
 
-export default function AddTodo() {
+export default function AddTodo(props) {
 
     const [task, setTask] = useState('')
+    const [error, setError] = useState(false)
 
     const handleSubmit = (e) => {
+      //if task is empty, set error to true
+        if(task === ''){
+            e.preventDefault();
+            setError(true)
+        } else {
+
         const sendEvent = async () => {
             const response = await fetch('http://localhost:5000/api/addtask/', {
               method: 'POST',
@@ -28,25 +34,27 @@ export default function AddTodo() {
             return body;
           };
           sendEvent()
-            .then(res => console.log(res))
+            .then(res => {
+              console.log(res)
+              props.addTaskCallback(res);
+            })
             .catch(err => console.log(err));
-      
-        // e.preventDefault();
-        window.location.reload(false);
+        
         setTask('');
-
+        }
     }
 
     return(
         <div style={{ width: "80%", justifyContent:"center"}} >
-            <form onSubmit={handleSubmit}>
                 <TextField
+                error={error}
                 type = "text"
-                onChange={(e) => setTask(e.target.value)}
+                onChange={(e) => {setTask(e.target.value), setError(false)}}
                 value={task}
                 style={{ width: "70%", height: 60 }}
                 id="filled-basic" 
                 label="Add a task" 
+                helperText={error ? "Please enter a task" : ""}
                 variant="filled" />
 
                 <Button
@@ -54,10 +62,10 @@ export default function AddTodo() {
                 variant="contained" 
                 endIcon={<AddIcon />}
                 type="submit"
+                onClick={handleSubmit}
                 >
                 Add
                 </Button>
-            </form>
         </div>
     )
 };

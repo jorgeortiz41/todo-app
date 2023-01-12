@@ -126,6 +126,22 @@ export default function TodoList() {
 
   //////////////////////////CRUD//////////////////////////////////////////
 
+  //get tasks
+  const getTasks = async () => {
+    const response = await fetch('http://localhost:5000/api/tasks', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    const body = await response.json();
+    if (response.status !== 200) {
+        throw Error(body.message)
+    }
+    return body;
+  };
+
+
   //handle task deletion by id
   const handleDelete = (id) => {
     const deleteTask = async () => {
@@ -142,10 +158,14 @@ export default function TodoList() {
         return body;
     };
     deleteTask()
-        .then(res => console.log(res))
+        .then(res => {
+          console.log(res)
+          getTasks()
+          .then(res => setData(res))
+          .catch(err => console.log(err));
+        })
         .catch(err => console.log(err));
 
-    window.location.reload(false);
   }
 
   //async function to take dialog field values and update task in database
@@ -222,22 +242,8 @@ export default function TodoList() {
     return body;
   };
 
-  //get lists from database
-  const getLists = async () => {
-    const response = await fetch('http://localhost:5000/api/lists', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
-    const body = await response.json();
-    if (response.status !== 200) {
-        throw Error(body.message)
-    }
-    return body;
-  };
 
-  ////////////////////////////TOGGLES/////////////////////////////////////
+  //*//////////////////////////TOGGLES/////////////////////////////////////
 
   //handle checkbox behavior
   const handleToggle = (value) => () => {
@@ -255,11 +261,15 @@ export default function TodoList() {
     
     //update isDone property of task in database to match checkbox state
     checkboxUpdateStatusTask(value)
-        .then(res => console.log(res))
+        .then(res => {
+          console.log(res)
+          getTasks()
+          .then(res => setData(res))
+          .catch(err => console.log(err));
+        })
         .catch(err => console.log(err));
         console.log("task has been updated");
         
-    window.location.reload(false);
   };
 
   //handle task dialog toggle
@@ -286,23 +296,30 @@ export default function TodoList() {
   const handleImportantToggle = (value) => () => {
     //call updateImportanceTask function
     updateImportanceTask(value)
-        .then(res => console.log(res))
+        .then(res => {console.log(res)
+          getTasks()
+          .then(res => setData(res))
+          .catch(err => console.log(err));
+        })
         .catch(err => console.log(err));
         console.log("task importance has been updated");
 
-    window.location.reload(false);
   };
 
   //handle task dialog submit
   const handleClose = (value) => {
     //update task in database
     updateTask(value)
-        .then(res => console.log(res))
+        .then(res => {
+          console.log(res)
+          getTasks()
+          .then(res => setData(res))
+          .catch(err => console.log(err));
+        })
         .catch(err => console.log(err));
         console.log("task has been edited");
     
     handleDialogToggle(value);
-    window.location.reload(false);
   };
 
   /////////////////////CALLBACK//////////////////////////////////////////
@@ -356,6 +373,18 @@ export default function TodoList() {
 
   }
 
+  const addTask = (task) => {
+    //call gettasks and update data state
+
+    getTasks()
+      .then(newData => setData(newData))
+      .catch(err => console.log(err));
+      console.log("task has been added and state updated");
+  }
+
+  //create callback for addtodo component to update the data state
+  
+
   ////////////////////////////RENDER/////////////////////////////////////
 
   //displayed when loading or no data
@@ -371,7 +400,7 @@ export default function TodoList() {
       spacing={{ xs: 1, sm: 2, md: 4 }}
       sx = {{ flexGrow: 2, pt: 10 }}
       >
-    <AddTodo />
+    <AddTodo addTaskCallback={addTask} />
     <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
     <ListSubheader>To-do</ListSubheader>
     <Divider variant="middle" />
@@ -487,6 +516,7 @@ export default function TodoList() {
                     {option.name}
                   </MenuItem>
                 ))}
+                <MenuItem value='None'>None</MenuItem>
               </TextField>
               <TextField
                 autoFocus
@@ -631,6 +661,7 @@ export default function TodoList() {
                     {option.name}
                   </MenuItem>
                 ))}
+                <MenuItem value='None'>None</MenuItem>
               </TextField>
               <TextField
                 autoFocus
@@ -775,6 +806,7 @@ export default function TodoList() {
                     {option.name}
                   </MenuItem>
                 ))}
+                <MenuItem value='None'>None</MenuItem>
               </TextField>
               <TextField
                 autoFocus

@@ -34,6 +34,8 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import StarIcon from '@mui/icons-material/Star';
 import Tooltip from '@mui/material/Tooltip';
 
+
+///////////////////////////SIDEBAR SETTINGS/////////////////////////////////////////
 const drawerWidth = 240;
 const category = [
     {title: 'All',
@@ -49,11 +51,6 @@ const category = [
     {title: 'Tasks',
     icon: <AssignmentIcon/>},
 ];
-const folders = [
-    {title: 'CustomList',
-    icon: <ListIcon/>},
-];
-
 
 const openedMixin = (theme) => ({
     width: drawerWidth,
@@ -120,6 +117,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
   );
 
+////////////////////////////////////////////////////////////////////////////////////
+
 export default function SideBar(props) {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
@@ -175,6 +174,17 @@ export default function SideBar(props) {
       setName('');
     };
 
+    //funcion to get lists from localhost:5000/lists and set them to data state and catch error
+    const getLists = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/lists')
+        const data = await response.json()
+        setLists(data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
     //handle dialog for custom list edit button
     const handleEdit = (value) => () => {
       const currentIndex = edit.indexOf(value);
@@ -212,13 +222,15 @@ export default function SideBar(props) {
       };
 
       sendUpdate(list)
-        .then(res => console.log(res))
+        .then(res => {console.log(res)
+          getLists()
+        })
         .catch(err => console.log(err));
         console.log("list updated");
 
       // e.preventDefault();
+      setName('');
       handleEdit(list);
-      window.location.reload(false);
     };
 
 
@@ -242,11 +254,12 @@ export default function SideBar(props) {
       };
 
       sendEvent()
-        .then(res => console.log(res))
+        .then(res => {console.log(res)
+          getLists()
+        })
         .catch(err => console.log(err));
   
     // e.preventDefault();
-    window.location.reload(false);
     setName('');
     setDopen(false);
     };
@@ -267,11 +280,12 @@ export default function SideBar(props) {
         return body;
       };
       sendEvent()
-        .then(res => console.log(res))
+        .then(res => {console.log(res)
+          getLists()
+        })
         .catch(err => console.log(err));
 
     // e.preventDefault();
-    window.location.reload(false);
     };
 
     if (isListLoading) return <p>Loading...</p>
@@ -309,6 +323,7 @@ export default function SideBar(props) {
             {category.map((text, i) => (
               <>
               <ListItem key={i} disablePadding sx={{ display: 'block' }}>
+              <Tooltip title={text.title} placement="right">
                 <ListItemButton
                   sx={{
                     minHeight: 48,
@@ -318,6 +333,7 @@ export default function SideBar(props) {
                   selected={selectedIndex === i}
                   onClick={() => handleClick(text.title, i)}
                 >
+                  
                   <ListItemIcon
                     sx={{
                       minWidth: 0,
@@ -327,14 +343,17 @@ export default function SideBar(props) {
                   >
                     {text.icon}
                   </ListItemIcon>
+                  
                   <ListItemText primary={text.title} sx={{ opacity: open ? 1 : 0 }} />
                 </ListItemButton>
+                </Tooltip>
               </ListItem>
               </>
             ))}
           </List>
         <Divider />
           <ListItem key="add" disablePadding sx={{ display: 'block'}}>
+            <Tooltip title="Add Custom List" placement="right">
             <ListItemButton
               sx={{
                 minHeight: 48,
@@ -345,6 +364,7 @@ export default function SideBar(props) {
               }}
               onClick={handleDialogOpen}
             >
+
               <ListItemIcon
                 sx={{
                   minWidth: 0,
@@ -356,6 +376,7 @@ export default function SideBar(props) {
               </ListItemIcon>
               <ListItemText primary="Add Custom List" sx={{ opacity: open ? 1 : 0 }} />
             </ListItemButton>
+            </Tooltip>
           </ListItem>
           <Dialog open={dopen} onClose={handleDialogClose}>
           <DialogTitle>Add Custom List</DialogTitle>
@@ -389,20 +410,22 @@ export default function SideBar(props) {
               <ButtonGroup sx={{
                 justifyContent: open ? 'initial' : 'center',
                 opacity: open ? 1 : 0 
-              }}>
+              }}
+              >
               <Tooltip title="Edit" disableInteractive followCursor>
-              <IconButton edge="end" aria-label="edit" onClick={handleEdit(list)}>
+              <IconButton edge="end" aria-label="edit" onClick={handleEdit(list)} disabled={open ? false : true}>
                 <EditIcon />
               </IconButton>
               </Tooltip>
               <Tooltip title="Delete" disableInteractive followCursor>
-              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(list._id)}> 
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(list._id)} disabled={open ? false : true}> 
                 <DeleteIcon />
               </IconButton>
               </Tooltip>
             </ButtonGroup>
             }
             >
+              <Tooltip title={list.name} placement="right">
               <ListItemButton
                 sx={{
                   minHeight: 48,
@@ -423,6 +446,7 @@ export default function SideBar(props) {
                 </ListItemIcon>
                 <ListItemText primary={list.name} sx={{ opacity: open ? 1 : 0 }} />
               </ListItemButton>
+              </Tooltip>
             </ListItem>
             <Dialog open={edit.indexOf(list)!== -1 } onClose={handleEdit(list)}>
               <DialogTitle>Edit Custom List</DialogTitle>
