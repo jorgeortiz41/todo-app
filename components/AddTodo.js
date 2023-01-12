@@ -34,10 +34,12 @@ export default function AddTodo(props) {
             return body;
           };
           sendEvent()
-            .then(res => console.log(res))
+            .then(res => {
+              console.log(res)
+              props.addTaskCallback(res);
+            })
             .catch(err => console.log(err));
         
-        props.addTaskCallback(task);
         setTask('');
         }
     }
