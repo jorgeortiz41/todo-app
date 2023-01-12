@@ -11,11 +11,18 @@ export default function AddTodo(props) {
     const [error, setError] = useState(false)
 
     const handleSubmit = (e) => {
+      let newCat = props.currentCategory;
+      let newList = props.currentList;
+      
       //if task is empty, set error to true
         if(task === ''){
             e.preventDefault();
             setError(true)
         } else {
+
+        if(props.currentCategory === 'All'){
+          newCat = 'Tasks';
+        }
 
         const sendEvent = async () => {
             const response = await fetch('http://localhost:5000/api/addtask/', {
@@ -25,6 +32,8 @@ export default function AddTodo(props) {
               },
               body: JSON.stringify({
                 name: task,
+                cat: newCat,
+                list: newList,
               }),
             });
             const body = await response.json();
