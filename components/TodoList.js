@@ -158,10 +158,14 @@ export default function TodoList() {
         return body;
     };
     deleteTask()
-        .then(res => console.log(res))
+        .then(res => {
+          console.log(res)
+          getTasks()
+          .then(res => setData(res))
+          .catch(err => console.log(err));
+        })
         .catch(err => console.log(err));
 
-    window.location.reload(false);
   }
 
   //async function to take dialog field values and update task in database
@@ -239,7 +243,7 @@ export default function TodoList() {
   };
 
 
-  ////////////////////////////TOGGLES/////////////////////////////////////
+  //*//////////////////////////TOGGLES/////////////////////////////////////
 
   //handle checkbox behavior
   const handleToggle = (value) => () => {
@@ -257,11 +261,15 @@ export default function TodoList() {
     
     //update isDone property of task in database to match checkbox state
     checkboxUpdateStatusTask(value)
-        .then(res => console.log(res))
+        .then(res => {
+          console.log(res)
+          getTasks()
+          .then(res => setData(res))
+          .catch(err => console.log(err));
+        })
         .catch(err => console.log(err));
         console.log("task has been updated");
         
-    window.location.reload(false);
   };
 
   //handle task dialog toggle
@@ -299,12 +307,16 @@ export default function TodoList() {
   const handleClose = (value) => {
     //update task in database
     updateTask(value)
-        .then(res => console.log(res))
+        .then(res => {
+          console.log(res)
+          getTasks()
+          .then(res => setData(res))
+          .catch(err => console.log(err));
+        })
         .catch(err => console.log(err));
         console.log("task has been edited");
     
     handleDialogToggle(value);
-    window.location.reload(false);
   };
 
   /////////////////////CALLBACK//////////////////////////////////////////
