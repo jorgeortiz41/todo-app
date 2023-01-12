@@ -296,11 +296,14 @@ export default function TodoList() {
   const handleImportantToggle = (value) => () => {
     //call updateImportanceTask function
     updateImportanceTask(value)
-        .then(res => console.log(res))
+        .then(res => {console.log(res)
+          getTasks()
+          .then(res => setData(res))
+          .catch(err => console.log(err));
+        })
         .catch(err => console.log(err));
         console.log("task importance has been updated");
 
-    window.location.reload(false);
   };
 
   //handle task dialog submit
