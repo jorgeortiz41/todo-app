@@ -174,6 +174,17 @@ export default function SideBar(props) {
       setName('');
     };
 
+    //funcion to get lists from localhost:5000/lists and set them to data state and catch error
+    const getLists = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/lists')
+        const data = await response.json()
+        setLists(data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
     //handle dialog for custom list edit button
     const handleEdit = (value) => () => {
       const currentIndex = edit.indexOf(value);
@@ -211,13 +222,15 @@ export default function SideBar(props) {
       };
 
       sendUpdate(list)
-        .then(res => console.log(res))
+        .then(res => {console.log(res)
+          getLists()
+        })
         .catch(err => console.log(err));
         console.log("list updated");
 
       // e.preventDefault();
+      setName('');
       handleEdit(list);
-      window.location.reload(false);
     };
 
 
@@ -241,11 +254,12 @@ export default function SideBar(props) {
       };
 
       sendEvent()
-        .then(res => console.log(res))
+        .then(res => {console.log(res)
+          getLists()
+        })
         .catch(err => console.log(err));
   
     // e.preventDefault();
-    window.location.reload(false);
     setName('');
     setDopen(false);
     };
@@ -266,11 +280,12 @@ export default function SideBar(props) {
         return body;
       };
       sendEvent()
-        .then(res => console.log(res))
+        .then(res => {console.log(res)
+          getLists()
+        })
         .catch(err => console.log(err));
 
     // e.preventDefault();
-    window.location.reload(false);
     };
 
     if (isListLoading) return <p>Loading...</p>
