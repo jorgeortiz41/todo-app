@@ -126,6 +126,22 @@ export default function TodoList() {
 
   //////////////////////////CRUD//////////////////////////////////////////
 
+  //get tasks
+  const getTasks = async () => {
+    const response = await fetch('http://localhost:5000/api/tasks', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    const body = await response.json();
+    if (response.status !== 200) {
+        throw Error(body.message)
+    }
+    return body;
+  };
+
+
   //handle task deletion by id
   const handleDelete = (id) => {
     const deleteTask = async () => {
@@ -221,6 +237,7 @@ export default function TodoList() {
     }
     return body;
   };
+
 
   ////////////////////////////TOGGLES/////////////////////////////////////
 
@@ -341,6 +358,18 @@ export default function TodoList() {
 
   }
 
+  const addTask = (task) => {
+    //call gettasks and update data state
+
+    getTasks()
+      .then(newData => setData(newData))
+      .catch(err => console.log(err));
+      console.log("task has been added and state updated");
+  }
+
+  //create callback for addtodo component to update the data state
+  
+
   ////////////////////////////RENDER/////////////////////////////////////
 
   //displayed when loading or no data
@@ -356,7 +385,7 @@ export default function TodoList() {
       spacing={{ xs: 1, sm: 2, md: 4 }}
       sx = {{ flexGrow: 2, pt: 10 }}
       >
-    <AddTodo />
+    <AddTodo addTaskCallback={addTask} />
     <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
     <ListSubheader>To-do</ListSubheader>
     <Divider variant="middle" />

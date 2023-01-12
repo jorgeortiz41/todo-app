@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import * as React from 'react';
 
 
-export default function AddTodo() {
+export default function AddTodo(props) {
 
     const [task, setTask] = useState('')
     const [error, setError] = useState(false)
@@ -36,16 +36,14 @@ export default function AddTodo() {
           sendEvent()
             .then(res => console.log(res))
             .catch(err => console.log(err));
-      
-        // e.preventDefault();
-        window.location.reload(false);
+        
+        props.addTaskCallback(task);
         setTask('');
         }
     }
 
     return(
         <div style={{ width: "80%", justifyContent:"center"}} >
-            <form onSubmit={handleSubmit}>
                 <TextField
                 error={error}
                 type = "text"
@@ -62,10 +60,10 @@ export default function AddTodo() {
                 variant="contained" 
                 endIcon={<AddIcon />}
                 type="submit"
+                onClick={handleSubmit}
                 >
                 Add
                 </Button>
-            </form>
         </div>
     )
 };
