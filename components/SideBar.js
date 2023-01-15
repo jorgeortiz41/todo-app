@@ -308,7 +308,7 @@ export default function SideBar(props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Simple To Do App
+            Not So Simple To Do App
           </Typography>
         </Toolbar>
       </AppBar>

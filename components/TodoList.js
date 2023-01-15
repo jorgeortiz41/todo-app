@@ -74,6 +74,8 @@ export default function TodoList() {
   const [category, setCategory] = useState('')
   const [lists, setLists] = useState(null)
   const [selectedList, setSelectedList] = useState('')
+  const [currcat, setCurrcat] = useState('All')
+  const [currlist, setCurrlist] = useState('')
 
 
   //fetch tasks from api
@@ -160,9 +162,7 @@ export default function TodoList() {
     deleteTask()
         .then(res => {
           console.log(res)
-          getTasks()
-          .then(res => setData(res))
-          .catch(err => console.log(err));
+          filterList(currlist)
         })
         .catch(err => console.log(err));
 
@@ -263,9 +263,7 @@ export default function TodoList() {
     checkboxUpdateStatusTask(value)
         .then(res => {
           console.log(res)
-          getTasks()
-          .then(res => setData(res))
-          .catch(err => console.log(err));
+          filterList(currlist)
         })
         .catch(err => console.log(err));
         console.log("task has been updated");
@@ -297,9 +295,7 @@ export default function TodoList() {
     //call updateImportanceTask function
     updateImportanceTask(value)
         .then(res => {console.log(res)
-          getTasks()
-          .then(res => setData(res))
-          .catch(err => console.log(err));
+          filterList(currlist)
         })
         .catch(err => console.log(err));
         console.log("task importance has been updated");
@@ -312,21 +308,22 @@ export default function TodoList() {
     updateTask(value)
         .then(res => {
           console.log(res)
-          getTasks()
-          .then(res => setData(res))
-          .catch(err => console.log(err));
+          filterList(currlist)
         })
         .catch(err => console.log(err));
         console.log("task has been edited");
     
     handleDialogToggle(value);
+    setName('');
   };
 
   /////////////////////CALLBACK//////////////////////////////////////////
   const filterCategory = (category) => {
     //call getTasks and filter by category
     setData([]);
-    const getTasks = async () => {
+    setCurrcat(category);
+    setCurrlist('');
+    const getfilterTasks = async () => {
       let filteredData = [];
       let newData = [...data];
       const response = await fetch('http://localhost:5000/api/tasks');
@@ -344,7 +341,7 @@ export default function TodoList() {
       }
     }
 
-    getTasks()
+    getfilterTasks()
       .then(newData => setData(newData))
       .catch(err => console.log(err));
 
@@ -353,13 +350,15 @@ export default function TodoList() {
   const filterList = (list) => {
     //call getTasks and filter by list
     setData([]);
+    setCurrcat('All');
+    setCurrlist(list);
     const getTasks = async () => {
       let filteredData = [];
       let newData = [...data];
       const response = await fetch('http://localhost:5000/api/tasks');
       newData = await response.json();
       if (list === '') {
-        return newData;
+        filterCategory(currcat)
       }
       else{
         filteredData = newData.filter(task => task.list === list);
@@ -374,12 +373,9 @@ export default function TodoList() {
   }
 
   const addTask = (task) => {
-    //call gettasks and update data state
-
-    getTasks()
-      .then(newData => setData(newData))
-      .catch(err => console.log(err));
-      console.log("task has been added and state updated");
+    //call filtercategory to update state
+    filterList(currlist)
+    console.log("task has been added and state updated");
   }
 
   //create callback for addtodo component to update the data state
@@ -400,7 +396,7 @@ export default function TodoList() {
       spacing={{ xs: 1, sm: 2, md: 4 }}
       sx = {{ flexGrow: 2, pt: 10 }}
       >
-    <AddTodo addTaskCallback={addTask} />
+    <AddTodo addTaskCallback={addTask} currentCategory={currcat} currentList={currlist} />
     <List sx={{ width: '100%', maxWidth: "80%", bgcolor: 'background.paper' }}>
     <ListSubheader>To-do</ListSubheader>
     <Divider variant="middle" />
@@ -475,8 +471,8 @@ export default function TodoList() {
                 value={stat}
                 onChange={handleStatusChange}
               >
-                {status.map((stat) => (
-                  <MenuItem key={stat.value} value={stat.value}>
+                {status.map((stat, i) => (
+                  <MenuItem key={i} value={stat.value}>
                     {stat.label}
                   </MenuItem>
                 ))}
@@ -493,8 +489,8 @@ export default function TodoList() {
                 helperText="Change category"
                 sx={{ml: 2}}
               >
-                {categories.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
+                {categories.map((option, i) => (
+                  <MenuItem key={i} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
@@ -620,8 +616,8 @@ export default function TodoList() {
                 onChange={handleStatusChange}
                 
               >
-                {status.map((stat) => (
-                  <MenuItem key={stat.value} value={stat.value}>
+                {status.map((stat, i) => (
+                  <MenuItem key={i} value={stat.value}>
                     {stat.label}
                   </MenuItem>
                 ))}
@@ -638,8 +634,8 @@ export default function TodoList() {
                 helperText="Change category"
                 sx={{ml: 2}}
               >
-                {categories.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
+                {categories.map((option, i) => (
+                  <MenuItem key={i} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
@@ -765,8 +761,8 @@ export default function TodoList() {
                 onChange={handleStatusChange}
                 
               >
-                {status.map((stat) => (
-                  <MenuItem key={stat.value} value={stat.value}>
+                {status.map((stat, i) => (
+                  <MenuItem key={i} value={stat.value}>
                     {stat.label}
                   </MenuItem>
                 ))}
@@ -783,8 +779,8 @@ export default function TodoList() {
                 helperText="Change category"
                 sx={{ml: 2}}
               >
-                {categories.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
+                {categories.map((option, i) => (
+                  <MenuItem key={i} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
