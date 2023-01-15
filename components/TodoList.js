@@ -471,8 +471,8 @@ export default function TodoList() {
                 value={stat}
                 onChange={handleStatusChange}
               >
-                {status.map((stat) => (
-                  <MenuItem key={stat.value} value={stat.value}>
+                {status.map((stat, i) => (
+                  <MenuItem key={i} value={stat.value}>
                     {stat.label}
                   </MenuItem>
                 ))}
@@ -489,8 +489,8 @@ export default function TodoList() {
                 helperText="Change category"
                 sx={{ml: 2}}
               >
-                {categories.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
+                {categories.map((option, i) => (
+                  <MenuItem key={i} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
@@ -616,8 +616,8 @@ export default function TodoList() {
                 onChange={handleStatusChange}
                 
               >
-                {status.map((stat) => (
-                  <MenuItem key={stat.value} value={stat.value}>
+                {status.map((stat, i) => (
+                  <MenuItem key={i} value={stat.value}>
                     {stat.label}
                   </MenuItem>
                 ))}
@@ -634,8 +634,8 @@ export default function TodoList() {
                 helperText="Change category"
                 sx={{ml: 2}}
               >
-                {categories.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
+                {categories.map((option, i) => (
+                  <MenuItem key={i} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
@@ -761,8 +761,8 @@ export default function TodoList() {
                 onChange={handleStatusChange}
                 
               >
-                {status.map((stat) => (
-                  <MenuItem key={stat.value} value={stat.value}>
+                {status.map((stat, i) => (
+                  <MenuItem key={i} value={stat.value}>
                     {stat.label}
                   </MenuItem>
                 ))}
@@ -779,8 +779,8 @@ export default function TodoList() {
                 helperText="Change category"
                 sx={{ml: 2}}
               >
-                {categories.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
+                {categories.map((option, i) => (
+                  <MenuItem key={i} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
