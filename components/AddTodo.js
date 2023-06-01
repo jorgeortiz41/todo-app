@@ -25,7 +25,7 @@ export default function AddTodo(props) {
         }
 
         const sendEvent = async () => {
-            const response = await fetch('http://localhost:5000/api/addtask/', {
+            const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/addtask/', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

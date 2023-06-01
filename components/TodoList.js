@@ -81,13 +81,13 @@ export default function TodoList() {
   //fetch tasks from api
   useEffect(() => {
     setLoading(true)
-    fetch('http://localhost:5000/api/tasks')
+    fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/tasks')
       .then((res) => res.json())
       .then((data) => {
         setData(data)
         console.log(data)
       })
-    fetch('http://localhost:5000/api/lists')
+    fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/lists')
       .then((res) => res.json())
       .then((data) => {
         setLists(data)
@@ -130,7 +130,7 @@ export default function TodoList() {
 
   //get tasks
   const getTasks = async () => {
-    const response = await fetch('http://localhost:5000/api/tasks', {
+    const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/tasks', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ export default function TodoList() {
   //handle task deletion by id
   const handleDelete = (id) => {
     const deleteTask = async () => {
-        const response = await fetch('http://localhost:5000/api/erasetask/' + id, {
+        const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/erasetask/' + id, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ export default function TodoList() {
     const newCategory = category === '' ? value.cat : category;
     const newStat = stat === '' ? value.status : stat;
     const newList = selectedList === '' ? value.list : selectedList;
-    const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
+    const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/updatetask/' + value._id, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -208,7 +208,7 @@ export default function TodoList() {
       isDone = 'to-do';
     }
 
-    const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
+    const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/updatetask/' + value._id, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ export default function TodoList() {
 
   const updateImportanceTask = async (value) => {
     const isImportant = !value.isImportant;
-    const response = await fetch('http://localhost:5000/api/updatetask/' + value._id, {
+    const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/updatetask/' + value._id, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -326,7 +326,7 @@ export default function TodoList() {
     const getfilterTasks = async () => {
       let filteredData = [];
       let newData = [...data];
-      const response = await fetch('http://localhost:5000/api/tasks');
+      const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/tasks');
       newData = await response.json();
       if (category === 'All') {
         return newData;
@@ -355,7 +355,7 @@ export default function TodoList() {
     const getTasks = async () => {
       let filteredData = [];
       let newData = [...data];
-      const response = await fetch('http://localhost:5000/api/tasks');
+      const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/tasks');
       newData = await response.json();
       if (list === '') {
         filterCategory(currcat)

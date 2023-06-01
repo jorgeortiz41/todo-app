@@ -133,7 +133,7 @@ export default function SideBar(props) {
     //useEffect to get lists from localhost:5000/lists and set them to data state
     useEffect(() => {
       setIsListLoading(true)
-      fetch('http://localhost:5000/api/lists')
+      fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/lists')
         .then((res) => res.json())
         .then((lists) => {
           setLists(lists)
@@ -177,7 +177,7 @@ export default function SideBar(props) {
     //funcion to get lists from localhost:5000/lists and set them to data state and catch error
     const getLists = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/lists')
+        const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/lists')
         const data = await response.json()
         setLists(data)
       } catch (error) {
@@ -205,7 +205,7 @@ export default function SideBar(props) {
     const handleEditConfirm = (list)  => {
       const sendUpdate = async (list) => {
         const newName = name === '' ? list.name : name;
-        const response = await fetch('http://localhost:5000/api/updatelist/' + list._id, {
+        const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/updatelist/' + list._id, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -237,7 +237,7 @@ export default function SideBar(props) {
     //handle add list dialog close
     const handleClose = () => {
       const sendEvent = async () => {
-        const response = await fetch('http://localhost:5000/api/addlist/', {
+        const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/addlist/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -267,7 +267,7 @@ export default function SideBar(props) {
     //handle delete list by id
     const handleDelete = (id) => {
       const sendEvent = async () => {
-        const response = await fetch('http://localhost:5000/api/eraselist/' + id, {
+        const response = await fetch('https://todo-server-m2cugb3dv-jorgeortiz41.vercel.app/api/eraselist/' + id, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
