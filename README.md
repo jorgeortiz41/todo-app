@@ -2,7 +2,6 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-After the backend is up and running, run the development server:
 
 ```bash
 # first
@@ -10,6 +9,8 @@ npm install
 # then
 npm run dev
 ```
+
+set up your own backend with your own routes and customize frontend accordingly
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
