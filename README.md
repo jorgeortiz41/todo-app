@@ -14,3 +14,5 @@ set up your own backend with your own routes and customize frontend accordingly
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+Set up the backend with your own env vars
+
